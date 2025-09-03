@@ -1,0 +1,30 @@
+---
+- name: app
+  hosts: myhosts
+  become: true
+  tasks:
+  - name: create directory for app
+    ansible.builtin.file:
+      path: /home/jli/nodejs_app
+      state: directory
+      mode: "0755"
+  - name: clone repo
+    ansible.builtin.git:
+      repo: 'https://github.com/J-L-I/nodejs_service_deploy.git'
+      dest: /home/jli/nodejs_app
+  - name: install npm and nodejs
+    ansible.builtin.apt:
+      name:
+        - nodejs
+        - npm
+      update_cache: yes
+  - name: install express
+    ansible.builtin.command: "{{ item }}"
+    loop:
+      - npm init -y
+      - npm install express -y
+  - name: run app
+    ansible.builtin.command: node app.js
+    args:
+      chdir: /home/jli/nodejs_app
+
